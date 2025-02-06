@@ -1,11 +1,18 @@
 // https://www.codewars.com/kata/546f922b54af40e1e90001da/train/javascript
+
 function alphabetPosition(text) {
-  return text.split("").filter(i => /[a-zA-Z]/.test(i)).map(i => i.charCodeAt(0) - (/[a-z]/.test(i) ? 96 : 64)).join(" ")
+  return text.toUpperCase().split("").filter(i => /[A-Z]/.test(i)).map(i => i.charCodeAt(0) - 64).join(" ");
 }
 
 console.log(
   alphabetPosition("The sunset sets at twelve o' clock.")
 )
+
+
+// function alphabetPosition(text) {
+//   return text.split("").filter(i => /[a-zA-Z]/.test(i)).map(i => i.charCodeAt(0) - (/[a-z]/.test(i) ? 96 : 64)).join(" ")
+// }
+
 
 // return text.split("").map(i => /[a-z]/.test(i) ? i.charCodeAt(0) - 96 : /[A-Z]/.test(i) ? i.charCodeAt(0) - 64 : undefined).filter(Number).join(" ")
 
