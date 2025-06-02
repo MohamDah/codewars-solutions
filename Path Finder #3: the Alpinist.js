@@ -1,20 +1,26 @@
-function MinHeap() {
+// https://www.codewars.com/kata/576986639772456f6f00030c
+
+const getCord = cell => `${cell[0]},${cell[1]}`
+
+function MinHeap(dists) { // Min heap implementation for this kata
+  this.dists = dists
   this.heap = []
 }
 MinHeap.prototype.push = function (value) {
+  // Pushes the cell and sorts based on the distance value of the cell in dicts
   this.heap.push(value)
   let index = this.heap.length - 1
 
   while (index > 0) {
     const parent = Math.floor((index - 1) / 2)
-    if (this.heap[parent][1] <= this.heap[index][1]) break;
+    if (this.dists.get(getCord(this.heap[parent])) <= this.dists.get(getCord(this.heap[index]))) break;
 
     [this.heap[parent], this.heap[index]] = [this.heap[index], this.heap[parent]]
     index = parent
   }
 }
-
 MinHeap.prototype.pop = function () {
+  // Extracts the root and reorganizes the tree
   if (this.heap.length < 2) return this.heap.pop()
 
   const toReturn = this.heap[0]
@@ -25,10 +31,10 @@ MinHeap.prototype.pop = function () {
     let leftChild = 2 * index + 1
     let rightChild = 2 * index + 2
     let smallest = index
-    if (leftChild < this.heap.length && this.heap[leftChild][1] < this.heap[smallest][1]) {
+    if (leftChild < this.heap.length && this.dists.get(getCord(this.heap[leftChild])) < this.dists.get(getCord(this.heap[smallest]))) {
       smallest = leftChild
     }
-    if (rightChild < this.heap.length && this.heap[rightChild][1] < this.heap[smallest][1]) {
+    if (rightChild < this.heap.length && this.dists.get(getCord(this.heap[rightChild])) < this.dists.get(getCord(this.heap[smallest]))) {
       smallest = rightChild
     }
     if (smallest === index) break
@@ -39,58 +45,46 @@ MinHeap.prototype.pop = function () {
   return toReturn
 }
 
-
 function pathFinder(area) {
   if (area.length === 1) return 0
   const matrix = area.split('\n').map(i => i.split('').map(Number));
-
-
   const visited = new Set()
-  const getCord = cell => `${cell[0]},${cell[1]}`
-  visited.add("0,0")
 
-  let currCell = [[0, 0], 0]
-  const minHeap = new MinHeap()
+  // Initialize MinHeap by passing it the distances map
   const dists = new Map()
+  const minHeap = new MinHeap(dists)
 
+  // Seed minHeap and dists
+  dists.set("0,0", 0)
+  minHeap.push([0, 0])
 
-  while (currCell) {
+  while (minHeap.heap.length > 0) {
+    // iterate over the unvisited cells with the lowest distance values and explore.
+    let currCell = minHeap.pop()
+    if (visited.has(getCord(currCell))) continue
+
+    // If we reach the end, return the distance value of it.
+    if (getCord(currCell) === getCord([matrix.length-1, matrix.length-1])) return dists.get(getCord(currCell))
     
-    visited.add(`${currCell[0][0]},${currCell[0][1]}`)
+    visited.add(getCord(currCell))
+
     for (const [x, y] of [[1, 0], [0, 1], [-1, 0], [0, -1]]) {
-      const newCell = [+currCell[0][0] + x, +currCell[0][1] + y];
-      const coords = `${newCell[0]},${newCell[1]}`
+      const newCell = [+currCell[0] + x, +currCell[1] + y];
       if (
         newCell.every(i => i >= 0 && i < matrix.length)
-        && !visited.has(coords)
+        && !visited.has(getCord(newCell))
       ) {
-        const newVal = Math.abs(+matrix[newCell[0]][newCell[1]] - +matrix[currCell[0][0]][currCell[0][1]]) + currCell[1]
-        const oldVal = minHeap.heap.find(i => getCord(i[0]) === coords)
-        if (oldVal) {
-          oldVal[1] = oldVal[1] > newVal ? newVal : oldVal[1]
-          if (currCell[0][0] === matrix.length && currCell[0][1] === matrix.length ) break;
-        } else {
-          minHeap.push([newCell, newVal])
-        }
+        // The difference between the two cells' numbers + the distance value of the current cell.
+        const newVal = Math.abs(+matrix[newCell[0]][newCell[1]] - +matrix[currCell[0]][currCell[1]]) + dists.get(getCord(currCell))
+        const oldVal = dists.get(getCord(newCell)) || Infinity
+
+        // Insert entry
+        dists.set(getCord(newCell), oldVal > newVal ? newVal : oldVal)
+        minHeap.push(newCell)
       }
     }
-    // minHeap.sort((a, b) => a[1] < b[1] ? -1 : 1)
-    // currCell = minHeap.find(i => !visited.has(getCord(i[0])))
-    currCell = minHeap.pop()
-    // currCell &&= currCell[0].split(",")
-    // console.log(minHeap)
   }
-
-  console.log(minHeap)
-
-  const endCell = minHeap.find(i => getCord(i[0]) === getCord([matrix.length - 1, matrix.length - 1]))
-
-  return endCell ? endCell[1] : 0
 }
-
-
-
-
 
 
 console.log(
@@ -101,8 +95,14 @@ console.log(
     // 077770
     // 077770
     // 000007`
-    `010
-101
-010`
+//     `010
+// 101
+// 010`
+`777000
+007000
+007000
+007000
+007000
+007777`
   )
 )
