@@ -17,9 +17,3 @@ console.log(sursurungal(
 1 eye of owl
 631 ears of bat`
 ));
-
-`
-3 tailzo of rat
-2 buleg of snake
-1 eye of owl
-631 gaearga of bat`;
