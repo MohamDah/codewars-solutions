@@ -4,7 +4,7 @@ async function pushEnvBlock(blockHeader, filePath = ".env") {
   try {
     let data = await readFile(filePath, "utf-8")
     const blocks = new Map()
-    data = data.replace(/#@ (.+?)\n.*?#\$\n*/gs, (match, head) => {
+    data = data.replace(/#@(?!.*?#@.*?#\$) (.+?)\n.*?#\$\n*/gs, (match, head) => {
       blocks.set(head, match.trim())
       return ""
     })
